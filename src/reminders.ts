@@ -6,6 +6,7 @@ import {
   buildDivider,
   buildIntroSection,
   buildNotAttendingAnyButton,
+  buildAttendingAllButton,
   buildDateHeader,
 } from './blocks/eventBlocks';
 import { SlackBlock } from './blocks/types';
@@ -120,9 +121,15 @@ export async function postDailyReminders(app: App): Promise<void> {
       }
     }
 
-    // Add "Not Attending Any" button if there are multiple events total
+    // Add "Attending All" and "Not Attending Any" buttons if there are multiple events total
     if (totalEvents > 1) {
-      blocks.push(buildNotAttendingAnyButton(allAttendanceKeys));
+      blocks.push({
+        type: 'actions',
+        elements: [
+          buildAttendingAllButton(allAttendanceKeys).elements[0],
+          buildNotAttendingAnyButton(allAttendanceKeys).elements[0],
+        ],
+      });
     }
 
     // Build summary text

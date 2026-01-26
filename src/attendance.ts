@@ -121,6 +121,42 @@ export function setupAttendanceHandlers(app: App, userCache: UserCache): void {
       console.error('Error updating attendance for all events:', error);
     }
   });
+
+  app.action('attending_all', async ({ ack, body, action, client }) => {
+    await ack();
+    
+    if (!('user' in body) || !action || !('value' in action)) {
+      return;
+    }
+
+    const userId = body.user.id;
+    const eventIds = (action.value as string).split(',').map(id => id.trim());
+    const channelId = 'channel' in body ? body.channel?.id : undefined;
+    const messageTs = 'message' in body && body.message && 'ts' in body.message ? body.message.ts : undefined;
+
+    try {
+      const updates = eventIds.map(eventId => ({
+        eventId,
+        userId,
+        status: 'attending' as const,
+      }));
+      await batchUpdateAttendance(updates);
+      
+      if (channelId && messageTs) {
+        await updateMessageAttendance(client, channelId, messageTs, eventIds, userCache);
+      }
+      
+      if (channelId) {
+        await client.chat.postEphemeral({
+          channel: channelId,
+          user: userId,
+          text: `✅ You marked yourself as attending all ${eventIds.length} meeting${eventIds.length !== 1 ? 's' : ''}!`,
+        });
+      }
+    } catch (error) {
+      console.error('Error updating attendance for all events:', error);
+    }
+  });
 }
 
 /**

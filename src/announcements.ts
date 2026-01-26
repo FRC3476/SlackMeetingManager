@@ -7,6 +7,8 @@ import {
   buildDateHeader,
   buildDivider,
   buildIntroSection,
+  buildAttendingAllButton,
+  buildNotAttendingAnyButton,
 } from './blocks/eventBlocks';
 import { SlackBlock } from './blocks/types';
 import {
@@ -47,6 +49,9 @@ export async function postWeeklyAnnouncement(app: App): Promise<void> {
     const eventsByDate = groupEventsByDate(eventsWithAttendance);
     const sortedDates = getSortedDateKeys(eventsByDate);
 
+    // Collect all attendance keys for batch buttons
+    const allAttendanceKeys: string[] = [];
+
     // Build blocks for each date and its events
     for (const dateKey of sortedDates) {
       const dateEvents = eventsByDate.get(dateKey)!;
@@ -63,7 +68,19 @@ export async function postWeeklyAnnouncement(app: App): Promise<void> {
           config.timezone
         );
         blocks.push(...eventBlocks);
+        allAttendanceKeys.push(eventData.attendanceKey);
       }
+    }
+
+    // Add "Attending All" and "Not Attending Any" buttons if there are multiple events
+    if (events.length > 1) {
+      blocks.push({
+        type: 'actions',
+        elements: [
+          buildAttendingAllButton(allAttendanceKeys).elements[0],
+          buildNotAttendingAnyButton(allAttendanceKeys).elements[0],
+        ],
+      });
     }
 
     await app.client.chat.postMessage({

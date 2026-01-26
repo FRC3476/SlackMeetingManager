@@ -170,6 +170,28 @@ export function buildNotAttendingAnyButton(allAttendanceKeys: string[]): Actions
 }
 
 /**
+ * Build "Attending All" button for batch operations
+ */
+export function buildAttendingAllButton(allAttendanceKeys: string[]): ActionsBlock {
+  return {
+    type: 'actions',
+    elements: [
+      {
+        type: 'button',
+        text: {
+          type: 'plain_text',
+          text: '✅ Attending All',
+          emoji: true,
+        },
+        action_id: 'attending_all',
+        value: allAttendanceKeys.join(','),
+        style: 'primary',
+      },
+    ],
+  };
+}
+
+/**
  * Build a complete event block with section, buttons, and divider
  */
 export function buildEventWithButtons(
@@ -218,5 +240,6 @@ export function buildIntroSection(text: string): SectionBlock {
     },
   };
 }
+
 
 
