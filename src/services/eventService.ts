@@ -3,6 +3,7 @@
  * Consolidates the repeated pattern of fetching events and their attendees
  */
 
+import { DateTime } from 'luxon';
 import { CalendarEvent } from '../calendar';
 import { getAttendees, getAttendanceKey } from '../attendance';
 import { getUserCache } from '../userCache';
@@ -57,12 +58,16 @@ export async function fetchEventWithAttendance(
  * Group events by date (using the event's start date string)
  */
 export function groupEventsByDate(
-  eventsWithAttendance: EventWithAttendance[]
+  eventsWithAttendance: EventWithAttendance[],
+  timezone?: string
 ): Map<string, EventWithAttendance[]> {
   const eventsByDate = new Map<string, EventWithAttendance[]>();
   
   for (const eventData of eventsWithAttendance) {
-    const dateKey = eventData.event.start.toDateString();
+    // Use timezone-aware date formatting for the grouping key
+    const dateKey = timezone
+      ? DateTime.fromJSDate(eventData.event.start).setZone(timezone).toISODate()!
+      : eventData.event.start.toDateString();
     if (!eventsByDate.has(dateKey)) {
       eventsByDate.set(dateKey, []);
     }

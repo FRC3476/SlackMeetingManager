@@ -5,6 +5,7 @@
 
 import { CalendarEvent, formatEventTime, formatEventDate } from '../calendar';
 import { SlackBlock, SectionBlock, ActionsBlock, DividerBlock, HeaderBlock } from './types';
+import { htmlToMrkdwn } from '../utils/htmlToMrkdwn';
 
 export interface AttendanceData {
   attending: string[];
@@ -90,7 +91,7 @@ export function buildEventText(
   }
   
   if (event.description) {
-    eventText += `\n${event.description}\n`;
+    eventText += `\n${htmlToMrkdwn(event.description)}\n`;
   }
 
   eventText += buildAttendanceText(attendance.attending, attendance.notAttending, detailedAttendance);

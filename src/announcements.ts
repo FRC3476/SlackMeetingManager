@@ -46,7 +46,7 @@ export async function postWeeklyAnnouncement(app: App): Promise<void> {
     const eventsWithAttendance = await fetchEventsWithAttendance(events, config.timezone);
     
     // Group events by date
-    const eventsByDate = groupEventsByDate(eventsWithAttendance);
+    const eventsByDate = groupEventsByDate(eventsWithAttendance, config.timezone);
     const sortedDates = getSortedDateKeys(eventsByDate);
 
     // Collect all attendance keys for batch buttons
